@@ -17,21 +17,35 @@ class Vehicle():
         self.u_min = vehicle_config.u_min
         self.u_max = vehicle_config.u_max
 
+        self.dt = vehicle_config.dt
+
         return
 
-    def coerce_input_limits(self, u):
+    def coerce_input_limits(self, state: VehicleState):
 
-        return min(max(u, self.u_min), self.u_max)
+        state.u = min(max(state.u, self.u_min), self.u_max)
+        
+        return
 
-    def step(self, u, v):
-
+    def accelerate(self, state: VehicleState):
         smooth_sign = lambda x : x / sqrt(x**2 + 1e-6**2)
         
-        a0 = (u - self.offset) * self.gain
+        # a0 = (state.u - self.offset) * self.gain
 
-        a =  a0 + a0**3*self.sat_poly_3 + a0**5 * self.sat_poly_5 \
-                - self.roll_res * self.smooth_sign(v)\
-                - self.drag * v * self.smooth_sign(v)\
-                - self.damping * v
+        # state.a =  a0 + a0**3*self.sat_poly_3 + a0**5 * self.sat_poly_5 \
+        #         - self.roll_res * smooth_sign(state.v)\
+        #         - self.drag * state.v * smooth_sign(state.v)\
+        #         - self.damping * state.v
+        state.a = state.u
+         
+        return
 
-        return a
+    def step(self, state: VehicleState):
+        
+        a_prev, v_prev = state.a, state.v
+        self.coerce_input_limits(state)
+        self.accelerate(state)
+        state.v = v_prev + (state.a - a_prev) * self.dt
+        state.x = state.x + (state.v - v_prev) * self.dt
+
+        return

@@ -59,3 +59,21 @@ class TurtleFig():
 	def rotateAgent(self,ID,angle): # angle in radians
 		agent = self.agents[ID]
 		agent.setheading(np.rad2deg(angle))
+
+if __name__ == "__main__":
+	graph_labels = {"xlab" : "xlab", "ylab" : "ylab", "title" : "Title"}
+	graph_labels2 = {"xlab" : "xlab2", "ylab" : "ylab2", "title" : "Title2"}
+	graphs_dict = [graph_labels,graph_labels2]
+	g = TurtleFig()
+	g.graphsHandler(2,graphs_dict)
+	x1 = []
+	y1 = []
+	x2 = []
+	y2 = []
+	for i in range(10):
+		x1.append(i)
+		y1.append(i)
+		y2.append(i)
+		x2.append(i)
+		graph_values = [(x1,y1),(x2,y2)]
+		g.updateGraphs(graph_values)

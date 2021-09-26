@@ -1,5 +1,5 @@
 class PID():
-    def __init__(self, kp, ki, kd, dt):
+    def __init__(self, kp = 1, ki = 0, kd = 0, dt = 0.01):
         self.ki = ki
         self.kd = kd
         self.kp = kp
@@ -14,8 +14,8 @@ class PID():
         self.ref = ref
         return
     
-    def step(self, x):
-        e = self.ref - x
+    def step(self, y):
+        e = self.ref - y
         self.cum_e += e * self.dt
         der_e = (self.last_e - e) / self.dt
         
