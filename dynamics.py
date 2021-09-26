@@ -36,16 +36,26 @@ class Vehicle():
         #         - self.roll_res * smooth_sign(state.v)\
         #         - self.drag * state.v * smooth_sign(state.v)\
         #         - self.damping * state.v
-        state.a = state.u
-         
+
+        #model for testing
+        Cd = 0.24    # drag coefficient
+        rho = 1.225  # air density (kg/m^3)
+        A = 5.0      # cross-sectional area (m^2)
+        Fp = 30      # thrust parameter (N/%pedal)
+        m = 500  
+        load = 200.0
+
+        
+        state.a = (1.0/(m+load)) * (Fp*state.u - 0.5*rho*Cd*A*state.v**2)
+
         return
 
     def step(self, state: VehicleState):
         
-        a_prev, v_prev = state.a, state.v
+        v_prev = state.v
         self.coerce_input_limits(state)
         self.accelerate(state)
-        state.v = v_prev + (state.a - a_prev) * self.dt
-        state.x = state.x + (state.v - v_prev) * self.dt
+        state.v = v_prev + state.a * self.dt
+        state.x = state.x + state.v * self.dt
 
         return

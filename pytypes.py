@@ -86,7 +86,7 @@ class VehicleConfig(PythonMsg):
     drag       :float = field(default = 0)
     damping    :float = field(default = 0)
     
-    u_min      :float = field(default = 1000)
+    u_min      :float = field(default = -2000) #change 
     u_max      :float = field(default = 2000)
 
     dt         :float = field(default = 0.01)
