@@ -5,6 +5,7 @@ from pytypes import VehicleState, VehicleConfig
 from utils import run
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.widgets import Slider, Button  
 
 def plot_response(state_vec, ref_vec):
     
@@ -34,9 +35,11 @@ def plot_response(state_vec, ref_vec):
 
 
 def main():
+
     #setup
-    kp, ki, kd = 100, 0, 20     
+    kp, ki, kd = 1, 0, 0     
     ti, tf, dt = 0, 5, 0.01 #s
+    ref = 10
     state_vec = []
     ref_vec = []
 
@@ -45,17 +48,10 @@ def main():
     model = Vehicle(vehicle_config)
     controller = PID(kp, ki, kd, dt)
 
-
     #loop
-    # while state.t < tf:
-    #     controller.set_ref(10)
-    #     state_vec.append(state.copy())
-    #     ref_vec.append(controller.ref)
-    #     state.u = controller.step(state.v)
-    #     model.step(state)
-    #     state.t += dt
-    state_vec, ref_vec = run(controller, model, state, tf, dt)
+    state_vec, ref_vec = run(controller, model, state, ref, tf, dt)
 
+    #plotting
     plot_response(state_vec, ref_vec)
     
 

@@ -1,9 +1,9 @@
-def run(controller, model, state, tf, dt):
+def run(controller, model, state, ref, tf, dt):
     state_vec = []
     ref_vec = []
 
     while state.t < tf:
-        controller.set_ref(10)
+        controller.set_ref(ref)
         state_vec.append(state.copy())
         ref_vec.append(controller.ref)
         state.u = controller.step(state.v)
