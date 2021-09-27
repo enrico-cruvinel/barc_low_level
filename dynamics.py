@@ -37,7 +37,7 @@ class Vehicle():
         #         - self.drag * state.v * smooth_sign(state.v)\
         #         - self.damping * state.v
 
-        #model for testing
+        #arbitrary model for testing
         Cd = 0.24    # drag coefficient
         rho = 1.225  # air density (kg/m^3)
         A = 5.0      # cross-sectional area (m^2)

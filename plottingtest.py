@@ -90,7 +90,6 @@ def update(val):
     ax.relim()
     ax.autoscale_view()
     fig.canvas.draw_idle()
-    print(val)
 
 
 # register the update function with each slider

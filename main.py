@@ -28,7 +28,6 @@ def plot_response(state_vec, ref_vec):
     plt.legend(['Input'])
     plt.xlabel('Time (sec)')
 
-    # plt.subplots_adjust(bottom = 0.25)
     plt.show()
 
 
@@ -37,7 +36,7 @@ def plot_response(state_vec, ref_vec):
 def main():
 
     #setup
-    kp, ki, kd = 1, 0, 0     
+    kp, ki, kd = 100, 0, 10     
     ti, tf, dt = 0, 5, 0.01 #s
     ref = 10
     state_vec = []
