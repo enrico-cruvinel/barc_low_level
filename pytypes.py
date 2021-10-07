@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 import copy
+from math import inf
 
 @dataclass
 class PythonMsg:
@@ -86,7 +87,7 @@ class VehicleConfig(PythonMsg):
     drag       :float = field(default = 0)
     damping    :float = field(default = 0)
     
-    u_min      :float = field(default = -2000) #change 
-    u_max      :float = field(default = 2000)
+    u_min      :float = field(default = 1500) #change 
+    u_max      :float = field(default = 1800)
 
     dt         :float = field(default = 0.01)

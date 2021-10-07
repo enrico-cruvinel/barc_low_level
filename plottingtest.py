@@ -10,13 +10,20 @@ from matplotlib.widgets import Slider, Button
 
 # Define initial parameters
 kp, ki, kd = 1, 0, 0     
-ti, tf, dt = 0, 5, 0.01 #s
-ref = 10
+ti, tf, dt = 0, 200, 0.01 #s
+ref = 5
 state_vec = []
 ref_vec = []
 
-state = VehicleState(v=0, u=0, t=ti) 
-vehicle_config = VehicleConfig(dt = dt)
+#      5.79838341e-02  1.52031313e+03  7.15398572e-03  1.52720337e-01
+#      7.73102813e-06  4.90633228e-01  1.63971733e+00 -2.81657345e-01
+  
+state = VehicleState(v=0, u=1500, t=ti) 
+
+vehicle_config = VehicleConfig(delay = 5.79838341e-02, offset = 1.52031313e+03, gain = 7.15398572e-03,\
+                               sat_poly_3 = 1.63971733e+00, sat_poly_5 = -2.81657345e-01, roll_res = 1.52720337e-01,\
+                               drag = 4.90633228e-01, damping =  7.73102813e-06, dt = dt)
+
 model = Vehicle(vehicle_config)
 controller = PID(kp, ki, kd, dt)
 
@@ -27,7 +34,7 @@ t_vec = [state.t for state in state_vec]
 v_vec = [state.v for state in state_vec]
 
 # Create the figure and the line that we will manipulate
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(nrows=2,ncols=1, sharex=True)
 line, = plt.plot(t_vec, v_vec, lw=2)
 plt.plot(t_vec,ref_vec,'k--')
 ax.set_xlabel('Time (s)')
@@ -47,7 +54,7 @@ kp_slider = Slider(
     ax=kpax,
     label='Kp',
     valmin=0,
-    valmax=100,
+    valmax=1000,
     valinit=kp,
 )
 
@@ -57,7 +64,7 @@ ki_slider = Slider(
     ax=kiax,
     label='Ki',
     valmin=0,
-    valmax=100,
+    valmax=1000,
     valinit=ki,
 )
 
@@ -66,7 +73,7 @@ kd_slider = Slider(
     ax=kdax,
     label='Kd',
     valmin=0,
-    valmax=100,
+    valmax=1000,
     valinit=kd,
 )
 
@@ -75,7 +82,6 @@ kd_slider = Slider(
 def update(val):
     
     state = VehicleState(v=0, u=0, t=ti) 
-    vehicle_config = VehicleConfig(dt = dt)
     model = Vehicle(vehicle_config)
     controller = PID(kp_slider.val, ki_slider.val, kd_slider.val)
 

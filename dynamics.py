@@ -5,6 +5,10 @@ class Vehicle():
 
     def __init__(self, vehicle_config = VehicleConfig):
 
+
+  #      5.79838341e-02  1.52031313e+03  7.15398572e-03  1.52720337e-01
+  #      7.73102813e-06  4.90633228e-01  1.63971733e+00 -2.81657345e-01
+
         self.delay = vehicle_config.delay
         self.offset = vehicle_config.offset
         self.gain = vehicle_config.gain
@@ -28,26 +32,17 @@ class Vehicle():
         return
 
     def accelerate(self, state: VehicleState):
+        
         smooth_sign = lambda x : x / sqrt(x**2 + 1e-6**2)
         
-        # a0 = (state.u - self.offset) * self.gain
+        a0 = (state.u - self.offset) * self.gain
 
-        # state.a =  a0 + a0**3*self.sat_poly_3 + a0**5 * self.sat_poly_5 \
-        #         - self.roll_res * smooth_sign(state.v)\
-        #         - self.drag * state.v * smooth_sign(state.v)\
-        #         - self.damping * state.v
+        state.a =  a0 + a0**3*self.sat_poly_3 + a0**5 * self.sat_poly_5 \
+                - self.roll_res * smooth_sign(state.v)\
+                - self.drag * state.v * smooth_sign(state.v)\
+                - self.damping * state.v
 
-        #arbitrary model for testing
-        Cd = 0.24    # drag coefficient
-        rho = 1.225  # air density (kg/m^3)
-        A = 5.0      # cross-sectional area (m^2)
-        Fp = 30      # thrust parameter (N/%pedal)
-        m = 500  
-        load = 200.0
-
-        
-        state.a = (1.0/(m+load)) * (Fp*state.u - 0.5*rho*Cd*A*state.v**2)
-
+      
         return
 
     def step(self, state: VehicleState):

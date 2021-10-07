@@ -11,7 +11,7 @@ def plot_response(state_vec, ref_vec):
     
     t_vec = [state.t for state in state_vec]
     v_vec = [state.v for state in state_vec]
-    u_vec = [state.v for state in state_vec]
+    u_vec = [state.u for state in state_vec]
 
     plt.figure(figsize = (6,6))
 
@@ -36,14 +36,18 @@ def plot_response(state_vec, ref_vec):
 def main():
 
     #setup
-    kp, ki, kd = 100, 0, 10     
-    ti, tf, dt = 0, 5, 0.01 #s
-    ref = 10
+    kp, ki, kd = 100, 130, 10    
+    ti, tf, dt = 0, 10, 0.01 #s
+    ref = 5
     state_vec = []
     ref_vec = []
 
-    state = VehicleState(v=0, u=0, t=ti) 
-    vehicle_config = VehicleConfig(dt = dt)
+    state = VehicleState(v=0, u=1500, t=ti) 
+
+    vehicle_config = VehicleConfig(delay = 5.79838341e-02, offset = 1.52031313e+03, gain = 7.15398572e-03,\
+                               sat_poly_3 = 1.63971733e+00, sat_poly_5 = -2.81657345e-01, roll_res = 1.52720337e-01,\
+                               drag = 4.90633228e-01, damping =  7.73102813e-06, dt = dt)
+
     model = Vehicle(vehicle_config)
     controller = PID(kp, ki, kd, dt)
 
