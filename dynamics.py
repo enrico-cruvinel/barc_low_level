@@ -18,8 +18,11 @@ class Vehicle():
         self.drag = vehicle_config.drag
         self.damping = vehicle_config.damping
         
-        self.u_min = vehicle_config.u_min
-        self.u_max = vehicle_config.u_max
+        self.u_min_a = vehicle_config.u_min_a
+        self.u_max_a = vehicle_config.u_max_a
+
+        self.u_min_y = vehicle_config.u_min_y
+        self.u_max_y = vehicle_config.u_max_y
 
         self.dt = vehicle_config.dt
 
@@ -27,7 +30,8 @@ class Vehicle():
 
     def coerce_input_limits(self, state: VehicleState):
 
-        state.u = min(max(state.u, self.u_min), self.u_max)
+        state.u_a = min(max(state.u_a, self.u_min_a), self.u_max_a)
+        state.u_y = min(max(state.u_y, self.u_min_y), self.u_max_y)
         
         return
 
@@ -35,7 +39,7 @@ class Vehicle():
         
         smooth_sign = lambda x : x / sqrt(x**2 + 1e-6**2)
         
-        a0 = (state.u - self.offset) * self.gain
+        a0 = (state.u_a - self.offset) * self.gain
 
         state.a =  a0 + a0**3*self.sat_poly_3 + a0**5 * self.sat_poly_5 \
                 - self.roll_res * smooth_sign(state.v)\
@@ -45,6 +49,12 @@ class Vehicle():
       
         return
 
+    def steer():
+        
+
+
+        return
+        
     def step(self, state: VehicleState):
         
         v_prev = state.v

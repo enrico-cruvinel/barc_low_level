@@ -72,7 +72,8 @@ class VehicleState(PythonMsg):
     x :float = field(default = 0) # vehicle position (m)
     v :float = field(default = 0) # vehicle speed (m/s)
     a :float = field(default = 0) # vehicle acceleration (m/s^2)
-    u :float = field(default = 0) # pwm input
+    u_a :float = field(default = 0) # pwm input for acceleration
+    u_y :float = field(default = 0) # input for steering
     t :float = field(default = 0) # time (s)
 
 @dataclass
@@ -87,7 +88,10 @@ class VehicleConfig(PythonMsg):
     drag       :float = field(default = 0)
     damping    :float = field(default = 0)
     
-    u_min      :float = field(default = 1500) #change 
-    u_max      :float = field(default = 1800)
+    u_min_a    :float = field(default = 1500)
+    u_max_a    :float = field(default = 1800)
+
+    u_min_y    :float = field(default = 1500)
+    u_max_y    :float = field(default = 1800)
 
     dt         :float = field(default = 0.01)
