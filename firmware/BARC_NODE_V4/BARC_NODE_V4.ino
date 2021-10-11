@@ -1,4 +1,5 @@
 
+#include <Arduino.h>
 #include "Servo.h"
 
 int TESTING_STATE = false; //test between receiving Nvidia Jetson Signal and Writing Constant PWM

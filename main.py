@@ -1,35 +1,14 @@
+import matplotlib.pyplot as plt
+import numpy as np
+from control import step_info
+from matplotlib.widgets import Button, Slider
+
 from controller import PID
 from dynamics import Vehicle
+from pytypes import VehicleConfig, VehicleState
+from utils import run, plot_response
 from visualization import TurtleFig
-from pytypes import VehicleState, VehicleConfig
-from utils import run
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.widgets import Slider, Button  
-from control import step_info
 
-def plot_response(state_vec, ref_vec):
-    
-    t_vec = [state.t for state in state_vec]
-    v_vec = [state.v for state in state_vec]
-    u_a_vec = [state.u_a for state in state_vec]
-
-    plt.figure(figsize = (6,6))
-
-    plt.subplot(2,1,1)
-    plt.plot(t_vec,v_vec,'b')
-    plt.plot(t_vec,ref_vec,'k--')
-    plt.ylabel('Velocity (m/s)')
-    plt.legend(['Velocity','Set Point'],loc='best')
-    plt.title('System Response')
-
-    plt.subplot(2,1,2)
-    plt.plot(t_vec,u_a_vec,'r')
-    plt.ylabel('Input (PWM)')    
-    plt.legend(['Input'])
-    plt.xlabel('Time (sec)')
-
-    plt.show()
 
 
 
@@ -37,9 +16,9 @@ def plot_response(state_vec, ref_vec):
 def main():
 
     #setup
-    kp, ki, kd = 340, 0, 0    
+    kp, ki, kd = 270, 140, 0    
     ti, tf, dt = 0, 10, 0.01 #s
-    ref = 8
+    ref = 10
     state_vec = []
     ref_vec = []
 
@@ -60,7 +39,6 @@ def main():
     t_vec = [state.t for state in state_vec]
     v_vec = [state.v for state in state_vec]
     print(step_info(v_vec, t_vec, yfinal=ref))
-    
 
 if __name__ == "__main__":
     main()

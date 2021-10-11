@@ -1,14 +1,17 @@
-from controller import PID
-from dynamics import Vehicle
-from visualization import TurtleFig
-from pytypes import VehicleState, VehicleConfig
-from utils import run
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.widgets import Slider, Button  
-from control import step_info
 from math import sqrt
 from time import time
+
+import matplotlib.pyplot as plt
+import numpy as np
+from control import step_info
+from matplotlib.widgets import Button, Slider
+
+from controller import PID
+from dynamics import Vehicle
+from pytypes import VehicleConfig, VehicleState
+from utils import run
+from visualization import TurtleFig
+
 
 def plot_response(state_vec, ref_vec):
     

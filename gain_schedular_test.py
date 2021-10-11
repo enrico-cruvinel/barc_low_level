@@ -3,14 +3,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.widgets import Button, Slider
 
-from controller import PID
+from controller import PID, GainSchedule
 from dynamics import Vehicle
 from pytypes import VehicleConfig, VehicleState
 from utils import run
 from visualization import TurtleFig
 
 ######### Define initial parameters ##########
-kp, ki, kd = 380, 990, 0     
+ki = lambda v: -2.682*v**4 + 71.15*v**3 + -651.8*v**2 + 2240*v - 1410
+kp = lambda v: -0.02604*v**4 + 4.062*v**3 + -69.9*v**2 + 368.7*v - 230    
 ti, tf, dt = 0, 10, 0.01 #s
 aref = 4
 state_vec = []
@@ -27,7 +28,7 @@ vehicle_config = VehicleConfig(delay = 5.79838341e-02, offset = 1.52031313e+03, 
                                drag = 4.90633228e-01, damping =  7.73102813e-06, dt = dt)
 
 model = Vehicle(vehicle_config)
-controller = PID(kp, ki, kd, dt)
+controller = GainSchedule(kp=kp, ki=ki, dt=dt)
 
 ######### run simulation ##########
 state_vec, aref_vec = run(controller, model, state, aref, tf, dt)
@@ -78,7 +79,7 @@ kp_slider = Slider(
     label='Kp',
     valmin=0,
     valmax=1000,
-    valinit=kp,
+    valinit=1,
 )
 
 kiax = plt.axes([0.1, 0.1, 0.65, 0.03], facecolor=axcolor)
@@ -87,7 +88,7 @@ ki_slider = Slider(
     label='Ki',
     valmin=0,
     valmax=1000,
-    valinit=ki,
+    valinit=1,
 )
 
 kdax = plt.axes([0.1, 0.05, 0.65, 0.03], facecolor=axcolor)
@@ -96,7 +97,7 @@ kd_slider = Slider(
     label='Kd',
     valmin=0,
     valmax=1000,
-    valinit=kd,
+    valinit=1,
 )
 
 
@@ -105,7 +106,7 @@ def update(val):
     
     state = VehicleState(v=0, u_a=0, t=ti) 
     model = Vehicle(vehicle_config)
-    controller = PID(kp_slider.val, ki_slider.val, kd_slider.val)
+    controller = GainSchedule(kp=kp, ki=ki, dt=dt)
 
     state_vec, aref_vec = run(controller, model, state, aref_slider.val, tf, dt)
 
