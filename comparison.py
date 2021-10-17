@@ -9,37 +9,6 @@ from dynamics import Vehicle
 from pytypes import VehicleConfig, VehicleState
 from utils import run_var_ref, run, plot_response
 
-def plot_comparison(state_vec_list, ref_vec):
-    
-   
-    
-
-    plt.figure(figsize = (6,6))
-
-    for state_vec in state_vec_list:
-
-        t_vec = [state.t for state in state_vec]
-        v_vec = [state.v for state in state_vec]
-        u_a_vec = [state.u_a for state in state_vec]
-
-        plt.subplot(2,1,1)
-        plt.plot(t_vec,v_vec,'b')
-        plt.plot(t_vec,ref_vec,'k--')
-        plt.ylabel('Velocity (m/s)')
-        plt.legend(['Velocity','Set Point'],loc='best')
-        plt.title('System Response')
-
-        plt.subplot(2,1,2)
-        plt.plot(t_vec,u_a_vec,'r')
-        plt.ylabel('Input (PWM)')    
-        plt.legend(['Input'])
-        plt.xlabel('Time (sec)')
-
-    plt.show()
-
-
-
-
 
 ######### Define initial parameters ##########
 ki = lambda v: -2.682*v**4 + 71.15*v**3 + -651.8*v**2 + 2240*v - 1410
@@ -47,9 +16,9 @@ kp = lambda v: -0.02604*v**4 + 4.062*v**3 + -69.9*v**2 + 368.7*v - 230
 
 ti, tf, dt = 0, 50, 0.01 #s
 t = np.arange(ti, tf+dt, dt)
-aref = 4
+vref = 4
 state_vec = []
-aref_vec = []
+vref_vec = []
 
 vehicle_config = VehicleConfig(delay = 5.79838341e-02, offset = 1.52031313e+03, gain = 7.15398572e-03,\
                             sat_poly_3 = 1.63971733e+00, sat_poly_5 = -2.81657345e-01, roll_res = 1.52720337e-01,\

@@ -1,5 +1,7 @@
-from math import sqrt
 from pytypes import VehicleConfig, VehicleState
+from collections import deque
+import casadi as ca
+import numpy as np
 
 class Vehicle():
 
@@ -26,6 +28,11 @@ class Vehicle():
 
         self.dt = vehicle_config.dt
 
+        # buffer for delay in input 
+        self.buf_length = int(vehicle_config.delay/vehicle_config.dt)+2
+        self.t_buf = deque([-self.buf_length+k  for k in range(self.buf_length)])
+        self.u_buf = deque([0]*self.buf_length)
+        self.F = self.setup_acceleration()
         return
 
     def coerce_input_limits(self, state: VehicleState):
@@ -35,32 +42,56 @@ class Vehicle():
         
         return
 
-    def accelerate(self, state: VehicleState):
-        
-        smooth_sign = lambda x : x / sqrt(x**2 + 1e-6**2)
-        
-        a0 = (state.u_a - self.offset) * self.gain
+    def setup_acceleration(self):
 
-        state.a =  a0 + a0**3*self.sat_poly_3 + a0**5 * self.sat_poly_5 \
-                - self.roll_res * smooth_sign(state.v)\
-                - self.drag * state.v * smooth_sign(state.v)\
-                - self.damping * state.v
+        t = ca.SX.sym('t')
+        ti = ca.SX.sym('ti', self.buf_length)
+        ui = ca.SX.sym('ui', self.buf_length+1)
+        
+        ut = ca.pw_const(t-self.delay, ti, ui)
+        x = ca.SX.sym('x')
+        v = ca.SX.sym('v')
 
-      
-        return
+        t_dot = 1
+        x_dot = v
+
+        smooth_sign = lambda x : x / ca.sqrt(x**2 + 1e-6**2)
+            
+        a0 = (ut - self.offset) * self.gain
+
+        v_dot =  a0 + a0**3*self.sat_poly_3 + a0**5 * self.sat_poly_5 \
+                - self.roll_res * smooth_sign(v)\
+                - self.drag * v * smooth_sign(v)\
+                - self.damping * v
+
+        state = ca.vertcat(t,x,v)
+        input = ca.vertcat(ti,ui)
+        ode   = ca.vertcat(t_dot, x_dot, v_dot)
+        
+        prob    = {'x':state, 'p':input, 'ode':ode}
+        setup   = {'t0':0, 'tf':self.dt}
+        F = ca.integrator('int','idas',prob, setup) 
+        
+        return F
+
 
     def steer():
         
-
-
         return
         
     def step(self, state: VehicleState):
         
-        v_prev = state.v
         self.coerce_input_limits(state)
-        self.accelerate(state)
-        state.v = v_prev + state.a * self.dt
-        state.x = state.x + state.v * self.dt
+
+        self.t_buf.append(state.t)
+        self.u_buf.append(state.u_a)
+        self.t_buf.popleft()
+        self.u_buf.popleft()
+        
+        sol = np.array(self.F(np.array([state.t, state.x, state.v]), [*self.t_buf, *self.u_buf, 0], 0, 0, 0, 0)[0]).squeeze()
+        state.t = sol[0]
+        state.x = sol[1]
+        state.v = sol[2]
 
         return
+        

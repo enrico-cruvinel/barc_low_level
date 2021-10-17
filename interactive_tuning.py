@@ -12,9 +12,9 @@ from visualization import TurtleFig
 ######### Define initial parameters ##########
 kp, ki, kd = 380, 990, 0     
 ti, tf, dt = 0, 10, 0.01 #s
-aref = 4
+vref = 4
 state_vec = []
-aref_vec = []
+vref_vec = []
 
 # values from Thomas' data
 # 5.79838341e-02  1.52031313e+03  7.15398572e-03  1.52720337e-01
@@ -30,13 +30,13 @@ model = Vehicle(vehicle_config)
 controller = PID(kp, ki, kd, dt)
 
 ######### run simulation ##########
-state_vec, aref_vec = run(controller, model, state, aref, tf, dt)
+state_vec, vref_vec = run(controller, model, state, vref, tf, dt)
 
 t_vec = [state.t for state in state_vec]
 v_vec = [state.v for state in state_vec]
 u_a_vec = [state.u_a for state in state_vec]
 
-S = ct.step_info(v_vec, t_vec, aref)
+S = ct.step_info(v_vec, t_vec, vref)
 
 print('RiseTime, ', S['RiseTime'])
 print('SettlingTime, ', S['SettlingTime'])
@@ -47,7 +47,7 @@ print()
 fig, ax = plt.subplots(nrows=2,ncols=1, sharex=True)
 vax, uax = ax[0], ax[1] 
 vline, = vax.plot(t_vec, v_vec, lw=2)
-arefline, = vax.plot(t_vec,aref_vec,'k--')
+vrefline, = vax.plot(t_vec,vref_vec,'k--')
 uline, = uax.plot(t_vec, u_a_vec)
 uax.set_xlabel('Time (s)')
 vax.set_ylabel('Speed (m/s)')
@@ -62,13 +62,13 @@ uax.autoscale_view()
 fig.subplots_adjust(left=0.25, bottom=0.3)
 
 axcolor = 'lightgoldenrodyellow'
-arefax = plt.axes([0.1, 0.25, 0.0225, 0.63], facecolor=axcolor)
-aref_slider = Slider(
-    ax=arefax,
-    label='aref',
+vrefax = plt.axes([0.1, 0.25, 0.0225, 0.63], facecolor=axcolor)
+vref_slider = Slider(
+    ax=vrefax,
+    label='vref',
     valmin=0,
     valmax=13,
-    valinit=aref,
+    valinit=vref,
     orientation='vertical'
 )
 
@@ -107,13 +107,13 @@ def update(val):
     model = Vehicle(vehicle_config)
     controller = PID(kp_slider.val, ki_slider.val, kd_slider.val)
 
-    state_vec, aref_vec = run(controller, model, state, aref_slider.val, tf, dt)
+    state_vec, vref_vec = run(controller, model, state, vref_slider.val, tf, dt)
 
     t_vec = [state.t for state in state_vec]
     v_vec = [state.v for state in state_vec]
     u_a_vec = [state.u_a for state in state_vec]
     
-    S = ct.step_info(v_vec, t_vec, aref)
+    S = ct.step_info(v_vec, t_vec, vref)
     print('RiseTime, ', S['RiseTime'])
     print('SettlingTime, ', S['SettlingTime'])
     print('Overshoot, ', S['Overshoot'])
@@ -121,7 +121,7 @@ def update(val):
 
 
     uline.set_ydata(u_a_vec)
-    arefline.set_ydata(aref_vec)
+    vrefline.set_ydata(vref_vec)
     vline.set_ydata(v_vec)
     vline.set_xdata(t_vec)
     vax.relim()
@@ -135,7 +135,7 @@ def update(val):
 kp_slider.on_changed(update)
 ki_slider.on_changed(update)
 kd_slider.on_changed(update)
-aref_slider.on_changed(update)
+vref_slider.on_changed(update)
 
 # Button to reset the sliders to initial values
 resetax = plt.axes([0.82, 0.05, 0.1, 0.04])
@@ -145,7 +145,7 @@ def reset(event):
     kp_slider.reset()
     ki_slider.reset()
     kd_slider.reset()
-    aref_slider.reset()
+    vref_slider.reset()
 button.on_clicked(reset)
 
 plt.show()
