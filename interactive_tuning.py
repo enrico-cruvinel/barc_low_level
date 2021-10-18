@@ -119,11 +119,12 @@ def update(val):
     print('Overshoot, ', S['Overshoot'])
     print()
 
-
-    uline.set_ydata(u_a_vec)
-    vrefline.set_ydata(vref_vec)
-    vline.set_ydata(v_vec)
-    vline.set_xdata(t_vec)
+    # need to use set_data to change both x and y
+    # in case array size changes from previous iterations
+    vline.set_data(t_vec, v_vec)
+    uline.set_data(t_vec, u_a_vec)
+    vrefline.set_data(t_vec, vref_vec)
+    # vline.set_ydata()
     vax.relim()
     vax.autoscale_view()
     uax.relim()
