@@ -14,7 +14,7 @@ from utils import run_var_ref, run, plot_response
 ki = lambda v: -2.682*v**4 + 71.15*v**3 + -651.8*v**2 + 2240*v - 1410
 kp = lambda v: -0.02604*v**4 + 4.062*v**3 + -69.9*v**2 + 368.7*v - 230
 
-ti, tf, dt = 0, 50, 0.01 #s
+ti, tf, dt = 0, 100, 0.01 #s
 t = np.arange(ti, tf+dt, dt)
 vref = 4
 state_vec = []
@@ -61,7 +61,7 @@ parabolic_ref = t ** 2 / 10
 
 
 # sine
-sine_ref = np.sin(t / np.pi) * 6 + 6
+sine_ref = np.sin(t / 4 / np.pi + np.pi / 2) * 6 + 6
 
 
 # square signal 1
@@ -69,9 +69,10 @@ n = len(t) // 5
 sq_ref_1 = np.concatenate((np.ones((n,)) * step_ref_2, np.ones((n,)) * step_ref_4, np.ones((n,)) * step_ref_6,\
                           np.ones((n,)) * step_ref_8, np.ones((len(t) - n*4,)) * step_ref_10))
 
-
-# square signal 2
-sq_ref_2 = np.concatenate((sq_ref_1[1:-1:2], sq_ref_1[-1:1:-2], np.ones(len(t) - 5*n) * step_ref_2)) 
+# square signal 2 
+sq_ref_2 = sq_ref_1[-1:0:-1]
+# square signal 3
+sq_ref_3 = np.concatenate((sq_ref_1[1:-1:2], sq_ref_1[-1:1:-2], np.ones(len(t) - 5*n) * step_ref_2)) 
 
 
 
@@ -81,7 +82,7 @@ sq_ref_2 = np.concatenate((sq_ref_1[1:-1:2], sq_ref_1[-1:1:-2], np.ones(len(t) -
 # state_vec_2, ref_vec_2 = run(controller_pid_10, model, state_2, ref, tf, dt)
 # state_vec_3, ref_vec_3 = run(controller_schedule, model, state_3, ref, tf, dt)
 
-ref = sine_ref
+ref = sq_ref_3
 state_vec_1, ref_vec_1 = run_var_ref(controller_pid_2, model, state_1, ref, tf, dt)
 state_vec_2, ref_vec_2 = run_var_ref(controller_pid_10, model, state_2, ref, tf, dt)
 state_vec_3, ref_vec_3 = run_var_ref(controller_schedule, model, state_3, ref, tf, dt)

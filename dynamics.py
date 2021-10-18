@@ -31,8 +31,12 @@ class Vehicle():
         # buffer for delay in input 
         self.buf_length = int(vehicle_config.delay/vehicle_config.dt)+2
         self.t_buf = deque([-self.buf_length+k  for k in range(self.buf_length)])
-        self.u_buf = deque([0]*self.buf_length)
-        self.F = self.setup_acceleration()
+        self.u_a_buf = deque([0]*self.buf_length)
+        self.u_y_buf = deque([0]*self.buf_length)
+
+        #integrator
+        self.Fa = self.setup_acceleration()
+        # self.Fy = self.setup_steering()
         return
 
     def coerce_input_limits(self, state: VehicleState):
@@ -71,11 +75,15 @@ class Vehicle():
         prob    = {'x':state, 'p':input, 'ode':ode}
         setup   = {'t0':0, 'tf':self.dt}
         F = ca.integrator('int','idas',prob, setup) 
-        
+            
         return F
 
 
-    def steer():
+    def setup_steering():
+
+
+        # steering_angle = outer_gain*(ca.arctan((u(t-delay) - offset) * gain))
+        # beta = ca.arctan(lr/L*ca.tan(steering_angle))
         
         return
         
@@ -84,11 +92,11 @@ class Vehicle():
         self.coerce_input_limits(state)
 
         self.t_buf.append(state.t)
-        self.u_buf.append(state.u_a)
+        self.u_a_buf.append(state.u_a)
         self.t_buf.popleft()
-        self.u_buf.popleft()
+        self.u_a_buf.popleft()
         
-        sol = np.array(self.F(np.array([state.t, state.x, state.v]), [*self.t_buf, *self.u_buf, 0], 0, 0, 0, 0)[0]).squeeze()
+        sol = np.array(self.Fa(np.array([state.t, state.x, state.v]), [*self.t_buf, *self.u_a_buf, 0], 0, 0, 0, 0)[0]).squeeze()
         state.t = sol[0]
         state.x = sol[1]
         state.v = sol[2]

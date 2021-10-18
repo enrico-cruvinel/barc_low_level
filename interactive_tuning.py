@@ -102,7 +102,7 @@ kd_slider = Slider(
 
 # function to be called anytime a slider's value changes
 def update(val):
-    
+    print(val)
     state = VehicleState(v=0, u_a=0, t=ti) 
     model = Vehicle(vehicle_config)
     controller = PID(kp_slider.val, ki_slider.val, kd_slider.val)

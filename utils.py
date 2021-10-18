@@ -10,7 +10,6 @@ def run(controller, model, state, ref, tf, dt):
         ref_vec.append(controller.ref)
         state.u_a = controller.step(state.v)
         model.step(state)
-        state.t += dt
 
     return state_vec, ref_vec
 
@@ -25,7 +24,6 @@ def run_var_ref(controller, model, state, ref, tf, dt):
         ref_vec.append(controller.ref)
         state.u_a = controller.step(state.v)
         model.step(state)
-        state.t += dt
         i += 1
 
     return state_vec, ref_vec

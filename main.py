@@ -18,7 +18,7 @@ def main():
     #setup
     kp, ki, kd = 270, 140, 0    
     ti, tf, dt = 0, 10, 0.01 #s
-    ref = 10
+    ref = 5.115740740740741
     state_vec = []
     ref_vec = []
 

@@ -104,7 +104,7 @@ kd_slider = Slider(
 # function to be called anytime a slider's value changes
 def update(val):
     
-    state = VehicleState(v=0, u_a=0, t=ti) 
+    state = VehicleState(v=2, u_a=0, t=ti) 
     model = Vehicle(vehicle_config)
     controller = GainSchedule(kp=kp, ki=ki, dt=dt)
 

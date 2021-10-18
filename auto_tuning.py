@@ -45,7 +45,7 @@ def main():
     tic = time()
     kp, ki, kd = 0, 0, 0  
     ti, tf, dt = 0, 10, 0.01 #s
-    ref = 2
+    ref = 10
     state_vec = []
     ref_vec = []
     vehicle_config = VehicleConfig(delay = 5.79838341e-02, offset = 1.52031313e+03, gain = 7.15398572e-03,\
