@@ -10,9 +10,11 @@ from utils import run
 from visualization import TurtleFig
 
 ######### Define initial parameters ##########
-kp, ki, kd = 380, 990, 0     
+kp, ki, kd = 260, 288, 0     
 ti, tf, dt = 0, 10, 0.01 #s
-vref = 4
+v0 = 4
+vref = 10
+u_min, u_max = 1000, 1500
 state_vec = []
 vref_vec = []
 
@@ -20,14 +22,14 @@ vref_vec = []
 # 5.79838341e-02  1.52031313e+03  7.15398572e-03  1.52720337e-01
 # 7.73102813e-06  4.90633228e-01  1.63971733e+00 -2.81657345e-01
   
-state = VehicleState(v=0, u_a=1500, t=ti) 
+state = VehicleState(v=v0, u_a=1500, t=ti) 
 
 vehicle_config = VehicleConfig(delay = 5.79838341e-02, offset = 1.52031313e+03, gain = 7.15398572e-03,\
                                sat_poly_3 = 1.63971733e+00, sat_poly_5 = -2.81657345e-01, roll_res = 1.52720337e-01,\
                                drag = 4.90633228e-01, damping =  7.73102813e-06, dt = dt)
 
 model = Vehicle(vehicle_config)
-controller = PID(kp, ki, kd, dt)
+controller = PID(kp, ki, kd, dt, u_min=u_min, u_max=u_max)
 
 ######### run simulation ##########
 state_vec, vref_vec = run(controller, model, state, vref, tf, dt)
@@ -102,10 +104,10 @@ kd_slider = Slider(
 
 # function to be called anytime a slider's value changes
 def update(val):
-    print(val)
-    state = VehicleState(v=0, u_a=0, t=ti) 
+
+    state = VehicleState(v=v0, u_a=0, t=ti) 
     model = Vehicle(vehicle_config)
-    controller = PID(kp_slider.val, ki_slider.val, kd_slider.val)
+    controller = PID(kp_slider.val, ki_slider.val, kd_slider.val, u_min=u_min, u_max=u_max)
 
     state_vec, vref_vec = run(controller, model, state, vref_slider.val, tf, dt)
 

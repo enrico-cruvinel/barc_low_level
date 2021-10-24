@@ -13,15 +13,16 @@ from visualization import TurtleFig
 ki = lambda v: -2.682*v**4 + 71.15*v**3 + -651.8*v**2 + 2240*v - 1410
 kp = lambda v: -0.02604*v**4 + 4.062*v**3 + -69.9*v**2 + 368.7*v - 230    
 ti, tf, dt = 0, 10, 0.01 #s
-aref = 4
+v0 = 0
+vref = 4
 state_vec = []
-aref_vec = []
+vref_vec = []
 
 # values from Thomas' data
 # 5.79838341e-02  1.52031313e+03  7.15398572e-03  1.52720337e-01
 # 7.73102813e-06  4.90633228e-01  1.63971733e+00 -2.81657345e-01
   
-state = VehicleState(v=0, u_a=1500, t=ti) 
+state = VehicleState(v=v0, u_a=1500, t=ti) 
 
 vehicle_config = VehicleConfig(delay = 5.79838341e-02, offset = 1.52031313e+03, gain = 7.15398572e-03,\
                                sat_poly_3 = 1.63971733e+00, sat_poly_5 = -2.81657345e-01, roll_res = 1.52720337e-01,\
@@ -31,13 +32,13 @@ model = Vehicle(vehicle_config)
 controller = GainSchedule(kp=kp, ki=ki, dt=dt)
 
 ######### run simulation ##########
-state_vec, aref_vec = run(controller, model, state, aref, tf, dt)
+state_vec, vref_vec = run(controller, model, state, vref, tf, dt)
 
 t_vec = [state.t for state in state_vec]
 v_vec = [state.v for state in state_vec]
 u_a_vec = [state.u_a for state in state_vec]
 
-S = ct.step_info(v_vec, t_vec, aref)
+S = ct.step_info(v_vec, t_vec, vref)
 
 print('RiseTime, ', S['RiseTime'])
 print('SettlingTime, ', S['SettlingTime'])
@@ -48,7 +49,7 @@ print()
 fig, ax = plt.subplots(nrows=2,ncols=1, sharex=True)
 vax, uax = ax[0], ax[1] 
 vline, = vax.plot(t_vec, v_vec, lw=2)
-arefline, = vax.plot(t_vec,aref_vec,'k--')
+vrefline, = vax.plot(t_vec,vref_vec,'k--')
 uline, = uax.plot(t_vec, u_a_vec)
 uax.set_xlabel('Time (s)')
 vax.set_ylabel('Speed (m/s)')
@@ -63,13 +64,13 @@ uax.autoscale_view()
 fig.subplots_adjust(left=0.25, bottom=0.3)
 
 axcolor = 'lightgoldenrodyellow'
-arefax = plt.axes([0.1, 0.25, 0.0225, 0.63], facecolor=axcolor)
-aref_slider = Slider(
-    ax=arefax,
-    label='aref',
+vrefax = plt.axes([0.1, 0.25, 0.0225, 0.63], facecolor=axcolor)
+vref_slider = Slider(
+    ax=vrefax,
+    label='vref',
     valmin=0,
     valmax=13,
-    valinit=aref,
+    valinit=vref,
     orientation='vertical'
 )
 
@@ -104,27 +105,29 @@ kd_slider = Slider(
 # function to be called anytime a slider's value changes
 def update(val):
     
-    state = VehicleState(v=2, u_a=0, t=ti) 
+    state = VehicleState(v=v0, u_a=1500, t=ti) 
     model = Vehicle(vehicle_config)
     controller = GainSchedule(kp=kp, ki=ki, dt=dt)
 
-    state_vec, aref_vec = run(controller, model, state, aref_slider.val, tf, dt)
+    state_vec, vref_vec = run(controller, model, state, vref_slider.val, tf, dt)
 
     t_vec = [state.t for state in state_vec]
     v_vec = [state.v for state in state_vec]
     u_a_vec = [state.u_a for state in state_vec]
     
-    S = ct.step_info(v_vec, t_vec, aref)
+    print('Ki, ', ki(vref_slider.val))
+    print('Kp, ', kp(vref_slider.val))
+
+    S = ct.step_info(v_vec, t_vec, vref)
     print('RiseTime, ', S['RiseTime'])
     print('SettlingTime, ', S['SettlingTime'])
     print('Overshoot, ', S['Overshoot'])
     print()
 
 
-    uline.set_ydata(u_a_vec)
-    arefline.set_ydata(aref_vec)
-    vline.set_ydata(v_vec)
-    vline.set_xdata(t_vec)
+    uline.set_data(t_vec, u_a_vec)
+    vrefline.set_data(t_vec, vref_vec)
+    vline.set_data(t_vec, v_vec)
     vax.relim()
     vax.autoscale_view()
     uax.relim()
@@ -136,7 +139,7 @@ def update(val):
 kp_slider.on_changed(update)
 ki_slider.on_changed(update)
 kd_slider.on_changed(update)
-aref_slider.on_changed(update)
+vref_slider.on_changed(update)
 
 # Button to reset the sliders to initial values
 resetax = plt.axes([0.82, 0.05, 0.1, 0.04])
@@ -146,7 +149,7 @@ def reset(event):
     kp_slider.reset()
     ki_slider.reset()
     kd_slider.reset()
-    aref_slider.reset()
+    vref_slider.reset()
 button.on_clicked(reset)
 
 plt.show()

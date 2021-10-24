@@ -11,11 +11,15 @@ from utils import run_var_ref, run, plot_response
 
 
 ######### Define initial parameters ##########
-ki = lambda v: -2.682*v**4 + 71.15*v**3 + -651.8*v**2 + 2240*v - 1410
-kp = lambda v: -0.02604*v**4 + 4.062*v**3 + -69.9*v**2 + 368.7*v - 230
+# ki = lambda v: -2.682*v**4 + 71.15*v**3 + -651.8*v**2 + 2240*v - 1410
+# kp = lambda v: -0.02604*v**4 + 4.062*v**3 + -69.9*v**2 + 368.7*v - 230
+ki = lambda v: 990 if (v<3) else 140
+kp = lambda v: 260 if (v<3) else 270
+
 
 ti, tf, dt = 0, 100, 0.01 #s
 t = np.arange(ti, tf+dt, dt)
+v0 = 0
 vref = 4
 state_vec = []
 vref_vec = []
@@ -26,14 +30,15 @@ vehicle_config = VehicleConfig(delay = 5.79838341e-02, offset = 1.52031313e+03, 
 model = Vehicle(vehicle_config)
 
 
-state_1 = VehicleState(v=0, u_a=1500, t=ti)
-state_2 = VehicleState(v=0, u_a=1500, t=ti)
-state_3 = VehicleState(v=0, u_a=1500, t=ti) 
+state_1 = VehicleState(v=v0, u_a=1500, t=ti)
+state_2 = VehicleState(v=v0, u_a=1500, t=ti)
+state_3 = VehicleState(v=v0, u_a=1500, t=ti) 
 
 # kp, ki, kd = 380, 990, 0  
-controller_schedule = GainSchedule(kp=kp, ki=ki, dt=dt)
-controller_pid_10 = PID(270, 140, 0, dt)
-controller_pid_2 = PID(260, 990, 0, dt)
+controller_schedule = GainSchedule(kp=kp, ki=ki, dt=dt, u_min=1500, u_max=1800)
+controller_pid_10 = PID(270, 140, 0, dt, u_min=1500, u_max=1800)
+controller_pid_2 = PID(260, 990, 0, dt, u_min=1500, u_max=1800)
+controller_pid_6 = PID(310, 460, 0, dt, u_min=1500, u_max=1800)
 
 ######### ref signals #########
 # step 1
@@ -61,19 +66,27 @@ parabolic_ref = t ** 2 / 10
 
 
 # sine
-sine_ref = np.sin(t / 4 / np.pi + np.pi / 2) * 6 + 6
+sine_ref = np.sin(t / (np.pi)) * 6 + 6
 
 
-# square signal 1
+# square signal 1 -> ramp up
 n = len(t) // 5
 sq_ref_1 = np.concatenate((np.ones((n,)) * step_ref_2, np.ones((n,)) * step_ref_4, np.ones((n,)) * step_ref_6,\
                           np.ones((n,)) * step_ref_8, np.ones((len(t) - n*4,)) * step_ref_10))
 
-# square signal 2 
-sq_ref_2 = sq_ref_1[-1:0:-1]
-# square signal 3
+# square signal 1 -> ramp up
+# n = len(t) // 4
+# sq_ref_11 = np.concatenate((np.ones((n,)) * 4, np.ones((n,)) * 6, np.ones((n,)) * 7,\
+                        #   np.ones((len(t) - n*3,)) * 9))
+
+# square signal 2 -> ramp down
+sq_ref_2 = np.concatenate((np.ones((n,)) * step_ref_10, np.ones((n,)) * step_ref_8, np.ones((n,)) * step_ref_6,\
+                          np.ones((n,)) * step_ref_4, np.ones((len(t) - n*4,)) * step_ref_2))
+
+# square signal 3 -> ramp up and then down
 sq_ref_3 = np.concatenate((sq_ref_1[1:-1:2], sq_ref_1[-1:1:-2], np.ones(len(t) - 5*n) * step_ref_2)) 
 
+# square signal 
 
 
 ######### controllers #########
@@ -82,7 +95,9 @@ sq_ref_3 = np.concatenate((sq_ref_1[1:-1:2], sq_ref_1[-1:1:-2], np.ones(len(t) -
 # state_vec_2, ref_vec_2 = run(controller_pid_10, model, state_2, ref, tf, dt)
 # state_vec_3, ref_vec_3 = run(controller_schedule, model, state_3, ref, tf, dt)
 
+# ref = [step_ref_2] * len(t)
 ref = sq_ref_3
+
 state_vec_1, ref_vec_1 = run_var_ref(controller_pid_2, model, state_1, ref, tf, dt)
 state_vec_2, ref_vec_2 = run_var_ref(controller_pid_10, model, state_2, ref, tf, dt)
 state_vec_3, ref_vec_3 = run_var_ref(controller_schedule, model, state_3, ref, tf, dt)

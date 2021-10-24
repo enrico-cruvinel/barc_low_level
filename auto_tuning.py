@@ -46,6 +46,7 @@ def main():
     kp, ki, kd = 0, 0, 0  
     ti, tf, dt = 0, 10, 0.01 #s
     ref = 10
+    v0 = 0
     state_vec = []
     ref_vec = []
     vehicle_config = VehicleConfig(delay = 5.79838341e-02, offset = 1.52031313e+03, gain = 7.15398572e-03,\
@@ -59,7 +60,7 @@ def main():
     for kp in range(100, 1000, 10):
         for ki in range(100, 1000, 10):
             
-            state = VehicleState(v=0, u_a=1500, t=ti) 
+            state = VehicleState(v=v0, u_a=1500, t=ti) 
             model = Vehicle(vehicle_config)
             controller = PID(kp, ki, kd, dt)
             
@@ -71,13 +72,16 @@ def main():
             try: 
                 S = step_info(v_vec, t_vec, yfinal=ref)
                 J = S['RiseTime']**2 + S['SettlingTime']**2 #check how my gain values change as I change the cost function
+                # J = S['RiseTime']**2 + S['SettlingTime']**2 + S['Overshoot']
             # J = J/sqrt(J)
             except:
                 J = 100
             if J < J_min:
                 J_min = J
                 kp_opt, ki_opt = kp, ki
-
+            
+        # str = '[' + '#' * int(kp/10000) + '.' * (10000 - int(kp/10000)) + ']'
+        # print(str)
     #### plotting ####
     # state = VehicleState(v=0, u_a=1500, t=ti) 
     # model = Vehicle(vehicle_config)

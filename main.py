@@ -16,13 +16,14 @@ from visualization import TurtleFig
 def main():
 
     #setup
-    kp, ki, kd = 270, 140, 0    
+    kp, ki, kd = 330, 140, 0    
     ti, tf, dt = 0, 10, 0.01 #s
-    ref = 5.115740740740741
+    ref = 10
+    v0 = 0
     state_vec = []
     ref_vec = []
 
-    state = VehicleState(v=0, u_a=1500, t=ti) 
+    state = VehicleState(v=v0, u_a=1500, t=ti) 
 
     vehicle_config = VehicleConfig(delay = 5.79838341e-02, offset = 1.52031313e+03, gain = 7.15398572e-03,\
                                sat_poly_3 = 1.63971733e+00, sat_poly_5 = -2.81657345e-01, roll_res = 1.52720337e-01,\
