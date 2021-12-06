@@ -16,6 +16,7 @@ def run(controller, model, state, ref, tf, dt):
 def run_var_ref(controller, model, state, ref, tf, dt):
     state_vec = []
     ref_vec = []
+    u_vec = []
     i = 0
 
     while state.t < tf:
@@ -23,10 +24,11 @@ def run_var_ref(controller, model, state, ref, tf, dt):
         state_vec.append(state.copy())
         ref_vec.append(controller.ref)
         state.u_a = controller.step(state.v)
+        u_vec.append(state.u_a)
         model.step(state)
         i += 1
 
-    return state_vec, ref_vec
+    return state_vec, ref_vec, u_vec
 
 def plot_response(state_vec, ref_vec):
     

@@ -17,10 +17,10 @@ ki = lambda v: 990 if (v<3) else 140
 kp = lambda v: 260 if (v<3) else 270
 
 
-ti, tf, dt = 0, 100, 0.01 #s
+ti, tf, dt = 0, 20, 0.01 #s
 t = np.arange(ti, tf+dt, dt)
 v0 = 0
-vref = 4
+vref = 10
 state_vec = []
 vref_vec = []
 
@@ -35,10 +35,15 @@ state_2 = VehicleState(v=v0, u_a=1500, t=ti)
 state_3 = VehicleState(v=v0, u_a=1500, t=ti) 
 
 # kp, ki, kd = 380, 990, 0  
-controller_schedule = GainSchedule(kp=kp, ki=ki, dt=dt, u_min=1500, u_max=1800)
-controller_pid_10 = PID(270, 140, 0, dt, u_min=1500, u_max=1800)
-controller_pid_2 = PID(260, 990, 0, dt, u_min=1500, u_max=1800)
-controller_pid_6 = PID(310, 460, 0, dt, u_min=1500, u_max=1800)
+controller_schedule = GainSchedule(kp=kp, ki=ki, dt=dt, u_min=1500, u_max=1750)
+controller_pid_10 = PID(270, 140, 0, dt, u_min=1500, u_max=1750) #500 #100
+controller_pid_2 = PID(260, 990, 0, dt, u_min=1500, u_max=1750)
+# controller_pid_6 = PID(310, 460, 0, dt, u_min=1500, u_max=1700)
+
+
+# controller_schedule = GainSchedule(kp=kp, ki=ki, dt=dt)
+# controller_pid_10 = PID(270, 140, 0, dt)
+# controller_pid_2 = PID(260, 990, 0, dt)
 
 ######### ref signals #########
 # step 1
@@ -58,15 +63,15 @@ step_ref_10 = 10
 
 
 # ramp
-ramp_ref = t + 2
+ramp_ref = t * 10/tf + 2
 
 
 # parabolic
-parabolic_ref = t ** 2 / 10
+parabolic_ref = t ** 2 / tf
 
 
 # sine
-sine_ref = np.sin(t / (np.pi)) * 6 + 6
+sine_ref = np.sin(t / (np.pi)) * 5 + 5
 
 
 # square signal 1 -> ramp up
@@ -96,11 +101,11 @@ sq_ref_3 = np.concatenate((sq_ref_1[1:-1:2], sq_ref_1[-1:1:-2], np.ones(len(t) -
 # state_vec_3, ref_vec_3 = run(controller_schedule, model, state_3, ref, tf, dt)
 
 # ref = [step_ref_2] * len(t)
-ref = sq_ref_3
+ref = ramp_ref
 
-state_vec_1, ref_vec_1 = run_var_ref(controller_pid_2, model, state_1, ref, tf, dt)
-state_vec_2, ref_vec_2 = run_var_ref(controller_pid_10, model, state_2, ref, tf, dt)
-state_vec_3, ref_vec_3 = run_var_ref(controller_schedule, model, state_3, ref, tf, dt)
+state_vec_1, ref_vec_1, u_vec_1 = run_var_ref(controller_pid_2, model, state_1, ref, tf, dt)
+state_vec_2, ref_vec_2, u_vec_2 = run_var_ref(controller_pid_10, model, state_2, ref, tf, dt)
+state_vec_3, ref_vec_3, u_vec_3 = run_var_ref(controller_schedule, model, state_3, ref, tf, dt)
 
 ######### plotting ########
 t1 = [state.t for state in state_vec_1]
@@ -115,6 +120,7 @@ t3 = [state.t for state in state_vec_3]
 v3 = [state.v for state in state_vec_3]
 ua3 = [state.u_a for state in state_vec_3]
 
+######## plot ############
 plt.figure(figsize = (6,6))
 
 plt.subplot(2,1,1)
@@ -133,5 +139,31 @@ plt.plot(t3, ua3)
 plt.ylabel('Input (PWM)')    
 plt.legend(['PID @ 2m/s', 'PID @ 10m/s', 'Gain Scheduling'],loc='best')
 plt.xlabel('Time (sec)')
+
+######## plot ############
+# plt.figure(figsize = (6,6))
+
+# plt.subplot(2,1,1)
+# plt.plot(t1,v1)
+# # plt.plot(t2,v2)
+# # plt.plot(t3,v3)
+# plt.plot(t2,v2)
+# plt.plot(t1,ref_vec_1,'k--')
+# plt.ylabel('Velocity (m/s)')
+# plt.legend(['Response Windup', 'Response Antiwindup', 'Set Point'],loc='best')
+# plt.title('System Response')
+
+# plt.subplot(2,1,2)
+# plt.plot(t1, u_vec_1)
+# plt.plot(t2, u_vec_2)
+# plt.plot(t1, ua1)
+# # plt.plot(t2, u_vec_2)
+# # plt.plot(t2, ua2)
+# # plt.plot(t3, u_vec_3)
+# # plt.plot(t3, ua3)
+# plt.ylabel('Input (PWM)')    
+# plt.legend(['Controller Output Windup', 'Controller Output Antiwindup', 'System Input'],loc='best')
+# plt.xlabel('Time (sec)')
+
 
 plt.show()

@@ -10,11 +10,11 @@ from utils import run
 from visualization import TurtleFig
 
 ######### Define initial parameters ##########
-kp, ki, kd = 260, 288, 0     
+kp, ki, kd = 260, 1000, 0     
 ti, tf, dt = 0, 10, 0.01 #s
-v0 = 4
-vref = 10
-u_min, u_max = 1000, 1500
+v0 = 0
+vref = 6
+u_min, u_max = 1500, 1800
 state_vec = []
 vref_vec = []
 
@@ -29,6 +29,7 @@ vehicle_config = VehicleConfig(delay = 5.79838341e-02, offset = 1.52031313e+03, 
                                drag = 4.90633228e-01, damping =  7.73102813e-06, dt = dt)
 
 model = Vehicle(vehicle_config)
+# controller = PID(kp, ki, kd, dt)
 controller = PID(kp, ki, kd, dt, u_min=u_min, u_max=u_max)
 
 ######### run simulation ##########

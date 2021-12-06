@@ -64,8 +64,8 @@ class GainSchedule():
     def anti_windup(self, y):
         
         e = self.ref - y
-        # ki = self.ki(self.ref)
-        ki = self.ki(e)
+        ki = self.ki(self.ref)
+        # ki = self.ki(e)
         ur = self.cum_e * ki
 
         if (ur > self.u_max and ki * e > 0)\
@@ -85,9 +85,9 @@ class GainSchedule():
         b = self.ki(self.ref)
         c = self.kd(self.ref)
         
-        # u = self.kp(self.ref) * e + self.ki(self.ref) * self.cum_e + self.kd(self.ref) * der_e
+        u = self.kp(self.ref) * e + self.ki(self.ref) * self.cum_e + self.kd(self.ref) * der_e
         
-        u = self.kp(e) * e + self.ki(e) * self.cum_e + self.kd(e) * der_e
+        # u = self.kp(e) * e + self.ki(e) * self.cum_e + self.kd(e) * der_e
         
         self.last_e = e
         
